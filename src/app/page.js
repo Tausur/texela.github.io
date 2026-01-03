@@ -1,9 +1,11 @@
-import Image from "next/image";
+import Features from "../../components/FeatureSection";
+import UploadSection from "../../components/UploadSection";
 
 export default function Home() {
   return (
-    <div className="flex items-center justify-center h-screen bg-cyan-400">
-      <p className="text-5xl">Hi, I am Tausur.</p>
+    <div className="mx-5">
+      <UploadSection />
+      <Features />
     </div>
   );
 }
