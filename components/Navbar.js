@@ -1,7 +1,13 @@
 "use client";
+
+import Link from "next/link";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 export default function Navbar() {
+  const router = useRouter();
+  const pathname = usePathname(); // get current path
   const [mounted, setMounted] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeLink, setActiveLink] = useState("Dashboard");
@@ -44,15 +50,22 @@ export default function Navbar() {
 
         {/* Desktop links */}
         <div className="hidden lg:flex space-x-6">
-          {navLinks.map((link) => (
-            <button
-              key={link}
-              onClick={() => setActiveLink(link)}
-              className="px-4 py-2 cursor-pointer rounded-full text-black font-medium transition-all duration-300 hover:bg-gray-100 hover:scale-105"
-            >
-              {link}
-            </button>
-          ))}
+          {navLinks.map((link) => {
+            const href = link === "Convert" ? "/" : `/${link.toLowerCase()}`;
+            const isActive = pathname === href;
+
+            return (
+              <Link
+                key={link}
+                href={href}
+                className={`px-4 py-2 rounded-full font-medium transition-all duration-300 hover:bg-gray-100 hover:scale-105
+                  ${isActive ? "bg-gray-100 text-black" : "text-black"}
+                `}
+              >
+                {link}
+              </Link>
+            );
+          })}
         </div>
 
         {/* Mobile toggle */}

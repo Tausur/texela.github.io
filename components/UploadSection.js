@@ -1,11 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { convertImagesToPdf } from "../utils/ImageToPdf";
 import { ReactSortable } from "react-sortablejs";
 import Modal from "react-modal";
+import { setPdfBlob } from "../utils/pdfStore";
 
 export default function UploadSection() {
+  const router = useRouter();
   const [items, setItems] = useState([]);
   const [previewModalSrc, setPreviewModalSrc] = useState(null);
 
@@ -28,22 +31,17 @@ export default function UploadSection() {
   };
 
   // Convert to PDF (USES UI ORDER)
-  const handleConvert = () => {
+  const handleConvert = async() => {
     if (items.length === 0) {
       alert("Please select at least one image!");
       return;
     }
 
     const orderedFiles = items.map((item) => item.file);
-     // Create timestamp
-    const now = new Date();
-    const timestamp = now
-      .toISOString()
-      .replace(/[:.]/g, "-")
-      .slice(0, 19); // YYYY-MM-DDTHH-MM-SS
+    const pdfBlob = await convertImagesToPdf(orderedFiles);
 
-    const filename = `Texela-${timestamp}.pdf`;
-    convertImagesToPdf(orderedFiles, filename);
+    setPdfBlob(pdfBlob);
+    router.push("/preview"); // 🚀 redirect  
   };
 
   return (

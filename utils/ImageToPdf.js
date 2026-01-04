@@ -1,40 +1,50 @@
 import jsPDF from "jspdf";
 
-/**
- * Convert an array of image files to a single PDF and trigger download
- * @param {File[]} files - Array of image files
- * @param {string} outputFileName - Name of the generated PDF
- */
+// Convert images to PDF and return a Blob (instead of downloading)
+export async function convertImagesToPdf(files) {
+  if (!files || files.length === 0) return null;
 
-export function convertImagesToPdf(files, outputFileName = "output.pdf") {
-  if (!files || files.length === 0) return;
+  const pdf = new jsPDF("p", "mm", "a4");
 
-  const pdf = new jsPDF();
+  for (let i = 0; i < files.length; i++) {
+    const imgData = await readFileAsDataURL(files[i]);
 
-  const promises = Array.from(files).map((file) => {
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onload = (e) => resolve(e.target.result);
-      reader.readAsDataURL(file);
-    });
-  });
+    if (i > 0) pdf.addPage();
 
-  Promise.all(promises).then((imagesData) => {
-    imagesData.forEach((imgData, index) => {
-      const image = new Image();
-      image.src = imgData;
-      image.onload = () => {
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = (image.height * pdfWidth) / image.width;
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
 
-        if (index > 0) pdf.addPage();
-        pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+    const img = new Image();
+    img.src = imgData;
+    await new Promise((res) => (img.onload = res));
 
-        // If last image, save the PDF
-        if (index === imagesData.length - 1) {
-          pdf.save(outputFileName);
-        }
-      };
-    });
-  });
+    const imgWidth = img.width;
+    const imgHeight = img.height;
+
+    // Scale image to fit A4 while keeping aspect ratio
+    let width = pdfWidth - 20; // 10mm margin each side
+    let height = (imgHeight * width) / imgWidth;
+
+    if (height > pdfHeight - 20) {
+      height = pdfHeight - 20;
+      width = (imgWidth * height) / imgHeight;
+    }
+
+    const x = (pdfWidth - width) / 2;
+    const y = (pdfHeight - height) / 2;
+
+    pdf.addImage(imgData, "JPEG", x, y, width, height);
+  }
+
+  // Return PDF as Blob
+  const pdfBlob = pdf.output("blob");
+  return pdfBlob;
 }
+
+// Helper to read file as Data URL
+const readFileAsDataURL = (file) =>
+  new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.readAsDataURL(file);
+  });
