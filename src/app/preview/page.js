@@ -1,8 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import PdfPreview from "../../../components/PdfPreview";
+import dynamic from "next/dynamic";
+// import PdfPreview from "../../../components/PdfPreview";
 import PdfActions from "../../../components/PdfActions";
+
+const PdfPreview = dynamic(() => import("../../../components/PdfPreview.js"), {
+  ssr: false,
+});
 
 export default function PreviewPage() {
   const [isMobile, setIsMobile] = useState(false);
