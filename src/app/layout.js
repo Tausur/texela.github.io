@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Texela",
-  description: "A fast, browser-based tool for converting images into text and PDFs.",
+  title: "Image to PDF Converter Online Free – Fast & Secure | Texela",
+  description: "Convert images to PDF online for free. Fast, secure, no watermark, no signup. Works perfectly on mobile. Try Texela now.",
 };
 
 export default function RootLayout({ children }) {
